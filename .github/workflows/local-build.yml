@@ -7,8 +7,11 @@ jobs:
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
-      - name: Build
-        run: make local LOCAL_CODESIGN_IDENTITY=-
+      - name: Build (Intel + Apple Silicon)
+        run: |
+          printf '\nARCHS = arm64 x86_64\nONLY_ACTIVE_ARCH = NO\n' >> LocalBuild.xcconfig
+          make local LOCAL_CODESIGN_IDENTITY=-
+          lipo -archs ~/Downloads/VoiceInk.app/Contents/MacOS/VoiceInk | grep -q x86_64
       - name: Zip
         run: cd ~/Downloads && ditto -c -k --keepParent VoiceInk.app $GITHUB_WORKSPACE/VoiceInk-free.zip
       - name: Release
