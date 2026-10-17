@@ -1,0 +1,17 @@
+name: Local build (free, no license)
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: make local LOCAL_CODESIGN_IDENTITY=-
+      - name: Zip
+        run: cd ~/Downloads && ditto -c -k --keepParent VoiceInk.app $GITHUB_WORKSPACE/VoiceInk-free.zip
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "free-${{ github.run_number }}" VoiceInk-free.zip --title "VoiceInk free build ${{ github.run_number }}" --notes "Built with make local (LOCAL_BUILD)."
